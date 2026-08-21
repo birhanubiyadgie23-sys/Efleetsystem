@@ -2,10 +2,33 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Auth ላደረጉ ተጠቃሚዎች በሙሉ ማንበብ እና መጻፍ ይፈቅዳል
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
-    
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /vehicle_requests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isAuthenticated();
+    }
   }
 }
