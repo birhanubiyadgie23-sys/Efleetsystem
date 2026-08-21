@@ -1,11 +1,12 @@
 // --- Firebase Config & Initialization ---
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBOi2H4sna_H532C96Mg8xi7PA_LiEAaDM",
+    authDomain: "efleet-a2161.firebaseapp.com",
+    projectId: "efleet-a2161",
+    storageBucket: "efleet-a2161.firebasestorage.app",
+    messagingSenderId: "1074690413995",
+    appId: "1:1074690413995:web:16e946d8974b142910eeee",
+    measurementId: "G-XXMFKDE4N7"
 };
 
 firebase.initializeApp(firebaseConfig);
