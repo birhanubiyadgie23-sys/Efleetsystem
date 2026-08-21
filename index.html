@@ -42,6 +42,21 @@
         </div>
     </div>
 
+    <!-- Rating & Return Modal -->
+    <div id="ratingModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <h3>ከስምሪት መመለሻ ማረጋገጫ</h3>
+            <p style="margin-bottom: 15px;">እባክዎ መመለስዎን ለማረጋገጥ የአሽከርካሪውን የባህሪ እና አገልግሎት ደረጃ ይገምግሙ፦</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn-primary" style="background: #3b82f6;" onclick="submitTripCompletion('🔵 በጣም ጥሩ')">🔵 በጣም ጥሩ</button>
+                <button class="btn-primary" style="background: #22c55e;" onclick="submitTripCompletion('🟢 ጥሩ')">🟢 ጥሩ</button>
+                <button class="btn-primary" style="background: #eab308; color: black;" onclick="submitTripCompletion('🟡 መካከለኛ')">🟡 መካከለኛ</button>
+                <button class="btn-primary" style="background: #ef4444;" onclick="submitTripCompletion('🔴 በጣም ዝቅተኛ')">🔴 በጣም ዝቅተኛ</button>
+            </div>
+            <button class="btn-danger" style="margin-top: 15px; width: 100%; background: #475569;" onclick="closeRatingModal()">ሰርዝ</button>
+        </div>
+    </div>
+
     <!-- Main Application Container -->
     <div id="mainAppContainer" class="app-layout" style="display: none;">
         
@@ -117,72 +132,81 @@
                 <button class="btn-primary" onclick="submitVehicleRequest()">ጥያቄ ላክ</button>
 
                 <h3 style="margin-top: 30px;">የእኔ ጥያቄዎች ዝርዝር</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ዳይሬክቶሬት</th>
-                            <th>መድረሻ</th>
-                            <th>ምክንያት</th>
-                            <th>ቀን</th>
-                            <th>የDept ሁኔታ</th>
-                            <th>የAdmin ሁኔታ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="staffRequestsTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>መድረሻ</th>
+                                <th>ምክንያት</th>
+                                <th>ቀን</th>
+                                <th>የDept ሁኔታ</th>
+                                <th>የAdmin ሁኔታ</th>
+                                <th>መመለሻ እና ግምገማ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffRequestsTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Department Approval -->
             <section id="tab-deptApp" class="card">
                 <h2>የዳይሬክቶሬት ኃላፊ ማረጋገጫ</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ጠያቂ</th>
-                            <th>ዳይሬክቶሬት</th>
-                            <th>መድረሻ</th>
-                            <th>ምክንያት</th>
-                            <th>ሁኔታ</th>
-                            <th>ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="deptApprovalTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ጠያቂ</th>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>መድረሻ</th>
+                                <th>ምክንያት</th>
+                                <th>ሁኔታ</th>
+                                <th>ርምጃ / የስምሪት ሁኔታ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deptApprovalTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Admin Dispatch Approval -->
             <section id="tab-adminDisp" class="card">
                 <h2>የስምሪት እና ትራንስፖርት ማጽደቂያ</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ጠያቂ</th>
-                            <th>ዳይሬክቶሬት</th>
-                            <th>መድረሻ</th>
-                            <th>የDept ሁኔታ</th>
-                            <th>የAdmin ውሳኔ</th>
-                            <th>አሽከርካሪ መድብ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminDispatchTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ጠያቂ</th>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>መድረሻ</th>
+                                <th>የDept ሁኔታ</th>
+                                <th>የAdmin ውሳኔ</th>
+                                <th>አሽከርካሪ መድብ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDispatchTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Driver Acceptance -->
             <section id="tab-driverAcc" class="card">
                 <h2>የአሽከርካሪዎች ስምሪት መከታተያ</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>መድረሻ</th>
-                            <th>ዳይሬክቶሬት</th>
-                            <th>የተመደበው አሽከርካሪ</th>
-                            <th>የስምሪት ሁኔታ</th>
-                            <th>ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="driverAcceptTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>መድረሻ</th>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>የተመደበው አሽከርካሪ</th>
+                                <th>የስምሪት ሁኔታ</th>
+                                <th>ርምጃ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driverAcceptTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Fuel & Maintenance -->
@@ -212,18 +236,20 @@
                 <button class="btn-primary" onclick="saveFuelMaintenance()">ጥያቄ አስገባ</button>
 
                 <h3 style="margin-top: 30px;">የተመዘገቡ የነዳጅ እና ጥገና ጥያቄዎች</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>አሽከርካሪ (መኪና)</th>
-                            <th>ዓይነት</th>
-                            <th>ወጪ/መጠን</th>
-                            <th>ማስታወሻ</th>
-                            <th>ሁኔታ / ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fmTableBody"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>አሽከርካሪ (መኪና)</th>
+                                <th>ዓይነት</th>
+                                <th>ወጪ/መጠን</th>
+                                <th>ማስታወሻ</th>
+                                <th>ሁኔታ / ርምጃ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fmTableBody"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Department Creation -->
@@ -236,15 +262,17 @@
                 <button class="btn-primary" onclick="registerNewDepartment()">መዝግብ</button>
 
                 <h3 style="margin-top: 30px;">የተመዘገቡ ዳይሬክቶሬቶች</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>የዳይሬክቶሬት ስም</th>
-                            <th>ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminDepartmentListTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>የዳይሬክቶሬት ስም</th>
+                                <th>ርምጃ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDepartmentListTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Department Config -->
@@ -280,7 +308,7 @@
                         <input type="text" id="adminCarPlate" placeholder="3-A12345">
                     </div>
                     <div class="form-group">
-                        <label>የመኪናው നിലጌ ሁኔታ</label>
+                        <label>የመኪናው ሁኔታ</label>
                         <select id="adminCarStatus">
                             <option value="Active">ሥራ ላይ (Active)</option>
                             <option value="Garage">ጋራዥ (Garage)</option>
@@ -290,17 +318,19 @@
                 <button class="btn-primary" onclick="registerDriverAndCar()">መዝግብ</button>
 
                 <h3 style="margin-top: 30px;">የተመዘገቡ መኪኖች እና አሽከርካሪዎች</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ሰሌዳ ቁጥር</th>
-                            <th>አሽከርካሪ</th>
-                            <th>ሁኔታ</th>
-                            <th>ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminRegisteredCarsTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ሰሌዳ ቁጥር</th>
+                                <th>አሽከርካሪ</th>
+                                <th>ሁኔታ</th>
+                                <th>ርምጃ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminRegisteredCarsTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Account Creation -->
@@ -335,17 +365,19 @@
             <!-- Users List Management -->
             <section id="tab-usersMgmt" class="card">
                 <h2>የስርዓቱ ተጠቃሚዎች ዝርዝር</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ሙሉ ስም</th>
-                            <th>ኢሜይል / የተጠቃሚ ስም</th>
-                            <th>ሚና (Role)</th>
-                            <th>የተፈጠረበት ቀን</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersListTableBody"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ሙሉ ስም</th>
+                                <th>ኢሜይል / የተጠቃሚ ስም</th>
+                                <th>ሚና (Role)</th>
+                                <th>የተፈጠረበት ቀን</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersListTableBody"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Tech Support -->
@@ -358,23 +390,29 @@
                 <button class="btn-primary" onclick="submitTechSupportIssue()">ለአስተዳዳሪ ላክ</button>
 
                 <h3 style="margin-top: 30px;">የቀረቡ የቴክኒክ ችግሮች (ለAdmin ብቻ)</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ቀን</th>
-                            <th>አቅራቢ</th>
-                            <th>የችግሩ ವಿವರ</th>
-                            <th>ሁኔታ</th>
-                            <th>ርምጃ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTechSupportTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ቀን</th>
+                                <th>አቅራቢ</th>
+                                <th>የችግሩ विवरण</th>
+                                <th>ሁኔታ</th>
+                                <th>ርምጃ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTechSupportTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <!-- Reports -->
             <section id="tab-reports" class="card">
-                <h2>የስርዓቱ አጠቃላይ ሪፖርቶች</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>የስርዓቱ አጠቃላይ ሪፖርቶች</h2>
+                    <button class="btn-primary print-btn" onclick="window.print()" style="background: #6366f1;">🖨️ ሪፖርት ፕሪንት አድርግ</button>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>ጠቅላላ የነዳጅ ወጪ</h3>
@@ -391,19 +429,22 @@
                 </div>
 
                 <h3 style="margin-top: 30px;">የተሽከርካሪ ስምሪት ጥያቄዎች አጠቃላይ ሪፖርት</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ጠያቂ</th>
-                            <th>ዳይሬክቶሬት</th>
-                            <th>መድረሻ</th>
-                            <th>ምክንያት</th>
-                            <th>ቀን</th>
-                            <th>አጠቃላይ ሁኔታ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="repTableRequestsBody"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ጠያቂ</th>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>መድረሻ</th>
+                                <th>ምክንያት</th>
+                                <th>ቀን</th>
+                                <th>አጠቃላይ ሁኔታ</th>
+                                <th>መመለሻ እና ውጤት</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repTableRequestsBody"></tbody>
+                    </table>
+                </div>
             </section>
 
         </main>
