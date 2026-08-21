@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="am">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E fleet - Corporate Vehicle Dispatch & Management System</title>
+    <!-- Supabase CDN ቤተ-መጽሐፍት -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- የስታይል ፋይል ማገናኛ -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2 style="color: #60a5fa; margin-bottom: 20px; text-align: center;">🚗 E fleet Login</h2>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 5px;">ኢሜይል (Email)</label>
+                <input type="email" id="loginEmail" placeholder="Email ያስገቡ">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 5px;">የሚስጥር ቁጥር (Password)</label>
+                <input type="password" id="loginPass" placeholder="Password ያስገቡ">
+            </div>
+            <button onclick="handleLogin()" style="width: 100%;">ግባ (Login)</button>
+        </div>
+    </div>
+
+    <!-- Generic Popup Modal -->
+    <div id="genericModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px;">
+                <div style="color: #38bdf8; font-size: 16px; font-weight: bold;" id="modalTitle">ርዕስ</div>
+                <button onclick="closeGenericModal()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:16px; box-shadow:none;">✕</button>
+            </div>
+            <div style="color: #cbd5e1; font-size: 13px; line-height: 1.6;" id="modalBody">ይዘት እዚህ ይገባል...</div>
+            <button onclick="closeGenericModal()" style="align-self: flex-end; padding: 6px 15px; font-size: 12px;">ዝጋ</button>
+        </div>
+    </div>
+
+    <div class="app-layout" id="mainAppContainer" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebarNav">
+            <div class="sidebar-brand">🚗 E-Fleet</div>
+            <button class="nav-item active" onclick="switchTab('dashboard', this)">📊 ዳሽቦርድ</button>
+            <button class="nav-item" onclick="switchTab('staffReq', this)" id="sidebarStaffReq">📋 የተሽከርካሪ ጥያቄዎች</button>
+            <button class="nav-item" onclick="switchTab('deptApp', this)" id="navDeptApp" style="display:none;"><span id="menuTextDeptApp">✔️ የዳይሬክቶሬት ማጽደቂያ</span></button>
+            <button class="nav-item" onclick="switchTab('adminDisp', this)" id="navAdminDisp" style="display:none;"><span id="menuTextAdminDisp">⚙️ የአድሚን ስምሪት</span></button>
+            <button class="nav-item" onclick="switchTab('driverAcc', this)" id="navDriverAcc" style="display:none;">🚗 የአሽከርካሪ ስምሪት ሁኔታ</button>
+            <button class="nav-item" onclick="switchTab('fuelMaint', this)" id="navFuel" style="display:none;">⛽ የነዳጅ እና ጥገና አስተዳደር</button>
+            <button class="nav-item" onclick="switchTab('deptCreate', this)" id="navDeptCreate" style="display:none;"><span id="menuTextDeptCreate">📂 ዳይሬክቶሬት መፍጠሪያ (Admin)</span></button>
+            <button class="nav-item" onclick="switchTab('deptMgmt', this)" id="navDeptMgmt" style="display:none;"><span id="menuTextDeptMgmt">🏢 ዳይሬክቶሬቶች እና ኃላፊዎች ማዋቀሪያ (Admin)</span></button>
+            <button class="nav-item" onclick="switchTab('carMgmt', this)" id="navCarMgmt" style="display:none;">🚘 መኪና እና አሽከርካሪ (Admin)</button>
+            <button class="nav-item" onclick="switchTab('accMgmt', this)" id="navAccMgmt" style="display:none;">👤 አካውንት መፍጠሪያ (Admin)</button>
+            <button class="nav-item" onclick="switchTab('usersMgmt', this)" id="navUsersMgmt" style="display:none;">👥 የተጠቃሚዎች ዝርዝር (Admin)</button>
+            <button class="nav-item" onclick="switchTab('techSupportAdmin', this)" id="navTechSupportAdmin" style="display:none;">🛠️ የቴክኒክ ድጋፍ ጥያቄዎች (Admin)</button>
+            <button class="nav-item" onclick="switchTab('reportsMgmt', this)" id="navReports" style="display:none;">📈 ሪፖርቶች እና ማእከል (Admin)</button>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-content">
+            <header>
+                <div>
+                    <h1>🚗 E fleet - Command System</h1>
+                </div>
+                <div id="userInfo" style="font-size: 13px; color: #94a3b8; display: flex; align-items: center; gap: 10px;">
+                    <span id="currentUserName">Admin User</span>
+                    <button class="btn-danger" onclick="handleLogout()" style="padding: 6px 12px; font-size: 11px;">ውጣ</button>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <div id="tab-dashboard" class="card active-section">
+                <div class="hero-slider" id="heroSlider">
+                    <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80');">
+                        <div class="slide-content">
+                            <h2>ዘመናዊ እና ቀልጣፋ ቁጥጥር</h2>
+                            <p>በቴክኖሎጂ የታገዘ የድርጅት ተሽከርካሪ ስምሪት አስተዳደር</p>
+                        </div>
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;">📊 አጠቃላይ ማጠቃለያ ዳሽቦርድ</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">ንቁ ተሽከርካሪዎች</p>
+                        <div class="stat-number" id="statActiveCars">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">ጋራጅ ውስጥ ያሉ (ጥገና)</p>
+                        <div class="stat-number" id="statGarageCars">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">በሂደት ላይ ያሉ ጥያቄዎች</p>
+                        <div class="stat-number" id="statPendingReq">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: STAFF REQUEST -->
+            <div id="tab-staffReq" class="card">
+                <h3>የተሽከርካሪ ጥያቄ ማቅረቢያ (Staff Request)</h3>
+                <div class="form-grid">
+                    <select id="reqDepartmentSelect">
+                        <option value="">-- የሚሠሩበትን የስራ ክፍል ይምረጡ --</option>
+                    </select>
+                    <input type="text" id="reqDestination" placeholder="መዳረሻ ቦታ (Destination)">
+                    <input type="text" id="reqReason" placeholder="የጉዞ ምክንያት">
+                    <input type="date" id="reqDate">
+                </div>
+                <button onclick="submitVehicleRequest()">ጥያቄ ላክ</button>
+                <div style="margin-top: 15px; overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ዳይሬክቶሬት</th>
+                                <th>መዳረሻ</th>
+                                <th>ምክንያት</th>
+                                <th>ቀን</th>
+                                <th>የዳይሬክተር ፈቃድ</th>
+                                <th>የአድሚን ስምሪት ውሳኔ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffRequestsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: DEPT APPROVAL -->
+            <div id="tab-deptApp" class="card">
+                <h3>የዳይሬክተር - የጥያቄ ማጽደቂያ እና የስራ ተመላሽ ክትትል ክፍል</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ሰራተኛ</th>
+                            <th>ዳይሬክቶሬት</th>
+                            <th>መዳረሻ</th>
+                            <th>ምክንያት</th>
+                            <th>ሁኔታ</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deptApprovalTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 4: ADMIN DISPATCH -->
+            <div id="tab-adminDisp" class="card">
+                <h3>የአድሚን (ስምሪት ባለሙያ) - የመጨረሻ ውሳኔ እና አሽከርካሪ መደብ</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ሰራተኛ</th>
+                            <th>ዳይሬክቶሬት</th>
+                            <th>መዳረሻ</th>
+                            <th>የዳይሬክተር ፈቃድ</th>
+                            <th>የአድሚን ውሳኔ</th>
+                            <th>አሽከርካሪ መደብ / ስምሪት</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminDispatchTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 5: DRIVER ACCEPT -->
+            <div id="tab-driverAcc" class="card">
+                <h3>የአሽከርካሪ ስምሪት መቀበያ / ክትትል</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>መዳረሻ</th>
+                            <th>የተመደበለት ሰራተኛ/ክፍል</th>
+                            <th>የተመደበው አሽከርካሪ</th>
+                            <th>የስራው ሁኔታ (Status)</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driverAcceptTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 6: FUEL & MAINTENANCE -->
+            <div id="tab-fuelMaint" class="card">
+                <h3>የነዳጅ እና ጥገና ማመልከቻ</h3>
+                <div id="driverFuelFormContainer">
+                    <div class="form-grid">
+                        <select id="fmCarSelect">
+                            <option value="">-- መኪና ይምረጡ --</option>
+                        </select>
+                        <select id="fmTypeSelect">
+                            <option value="Fuel">ነዳጅ (Fuel)</option>
+                            <option value="Maintenance">ጥገና (Maintenance)</option>
+                        </select>
+                        <input type="text" id="fmValueInput" placeholder="መጠን (ብር ወይም ሊትር)">
+                        <input type="text" id="fmNoteInput" placeholder="ማስታወሻ / ዝርዝር">
+                    </div>
+                    <button onclick="saveFuelMaintenance()">ማመልከቻ ላክ</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>አሽከርካሪ / ተሽከርካሪ</th>
+                            <th>አይነት</th>
+                            <th>መጠን</th>
+                            <th>ማስታወሻ</th>
+                            <th>ሁኔታ/እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fmTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 7: DEPT CREATE -->
+            <div id="tab-deptCreate" class="card">
+                <h3>📂 አዲስ ዳይሬክቶሬት መፍጠሪያ (Admin Department Creation)</h3>
+                <div class="form-grid">
+                    <input type="text" id="newDeptNameInput" placeholder="የስራ ክፍሉ/ዳይሬክቶሬቱ ስም">
+                </div>
+                <button onclick="registerNewDepartment()">ዳይሬክቶሬት ፍጠር</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>የዳይሬክቶሬት ስም</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminDepartmentListTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 8: DEPT MGMT -->
+            <div id="tab-deptMgmt" class="card">
+                <h3>🏢 ዳይሬክቶሬቶች እና ኃላፊዎች ማዋቀሪያ</h3>
+                <div class="form-grid">
+                    <select id="adminConfigDeptName">
+                        <option value="">-- ዳይሬክቶሬት ይምረጡ --</option>
+                    </select>
+                    <input type="text" id="adminConfigHeadUsername" placeholder="የዳይሬክተሩ ዩዘርነም (Username)">
+                    <input type="text" id="adminConfigStaffs" placeholder="የሰራተኞች ስም በኮማ">
+                </div>
+                <button onclick="saveDepartmentConfiguration()">ዳይሬክቶሬት አዋቅር / መዝግብ</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ዳይሬክቶሬት</th>
+                            <th>የዳይሬክተሩ ዩዘርነም</th>
+                            <th>የሰራተኞች ዝርዝር</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminConfiguredDeptsTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 9: CAR & DRIVER -->
+            <div id="tab-carMgmt" class="card">
+                <h3>ተሽከርካሪ እና አሽከርካሪ ምዝገባ</h3>
+                <div class="form-grid">
+                    <input type="text" id="adminDriverName" placeholder="የአሽከርካሪው ሙሉ ስም">
+                    <input type="text" id="adminCarPlate" placeholder="የተሽከርካሪ ታርጋ">
+                    <select id="adminCarStatus">
+                        <option value="Active">Active (ንቁ)</option>
+                        <option value="Garage">Garage (ጋራጅ)</option>
+                    </select>
+                </div>
+                <button onclick="registerDriverAndCar()">አሽከርካሪ እና መኪና አክል</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ታርጋ</th>
+                            <th>አሽከርካሪ</th>
+                            <th>ሁኔታ</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminRegisteredCarsTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 10: ACCOUNT MGMT -->
+            <div id="tab-accMgmt" class="card">
+                <h3>አዲስ የዩዘር መለያ መፍጠሪያ (Supabase Auth Account)</h3>
+                <div class="form-grid">
+                    <input type="text" id="newAccFullName" placeholder="ሙሉ ስም">
+                    <input type="email" id="newAccEmail" placeholder="ኢሜይል (Email)">
+                    <input type="password" id="newAccPassword" placeholder="የሚስጥር ቁጥር (Password)">
+                    <select id="newAccRole">
+                        <option value="staff">መደበኛ ሰራተኛ (Staff)</option>
+                        <option value="dept">ዳይሬክተር (Department Head)</option>
+                        <option value="driver">አሽከርካሪ (Driver)</option>
+                        <option value="admin">አድሚን (Admin)</option>
+                    </select>
+                </div>
+                <button onclick="registerSystemAccount()">መለያ ፍጠር</button>
+            </div>
+
+            <!-- TAB 11: USERS MGMT -->
+            <div id="tab-usersMgmt" class="card">
+                <h3>👥 በሲስተሙ የተመዘገቡ ተጠቃሚዎች ዝርዝር</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ሙሉ ስም</th>
+                            <th>ኢሜይል / ዩዘርነም</th>
+                            <th>ሚና (Role)</th>
+                            <th>የተፈጠረበት ቀን</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersListTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 12: TECH SUPPORT (የተስተካከለ) -->
+            <div id="tab-techSupportAdmin" class="card">
+                <h3>🛠️ የቴክኒክ ድጋፍ ጥያቄዎች ሪፖርት</h3>
+                <div style="margin-bottom: 15px; padding: 15px; background: #0f172a; border-radius: 6px;">
+                    <h4 style="color: #38bdf8; margin-bottom: 8px;">አዲስ የቴክኒክ ችግር ሪፖርት ማድረጊያ</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="techIssueInput" placeholder="ያጋጠመዎትን የቴክኒክ ችግር ይጻፉ..." style="flex:1; padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: white;">
+                        <button onclick="submitTechSupportIssue()" style="padding: 8px 15px;">ላክ</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ቀን / ሰዓት</th>
+                            <th>ላኪ</th>
+                            <th>ችግር</th>
+                            <th>ሁኔታ</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTechSupportTable"></tbody>
+                </table>
+            </div>
+
+            <!-- TAB 13: REPORTS -->
+            <div id="tab-reportsMgmt" class="card">
+                <h3>📈 የተሟላ የአድሚን ሪፖርት ማዕከል</h3>
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">ጠቅላላ የነዳጅ ወጪ (ብር)</p>
+                        <div class="stat-number" id="totalFuelCost" style="color: #10b981;">0 ብር</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">ጠቅላላ የጥገና ወጪ (ብር)</p>
+                        <div class="stat-number" id="totalMaintCost" style="color: #f59e0b;">0 ብር</div>
+                    </div>
+                    <div class="stat-card">
+                        <p style="font-size: 12px; color: #94a3b8;">ውድቅ የተደረጉ ጥያቄዎች</p>
+                        <div class="stat-number" id="totalRejectedReq" style="color: #ef4444;">0</div>
+                    </div>
+                </div>
+
+                <h4>📋 የአጠቃላይ ስምሪት ጥያቄዎች ታሪክ</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ሰራተኛ</th>
+                            <th>ዳይሬክቶሬት</th>
+                            <th>መዳረሻ</th>
+                            <th>ምክንያት</th>
+                            <th>ቀን</th>
+                            <th>ሁኔታ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="repTableRequestsBody"></tbody>
+                </table>
+            </div>
+
+            <footer>
+                <div class="footer-banner-box">
+                    <span>🛡️ የተሽከርካሪ አስተዳደር እና ስምሪት ስርዓት — ደህንነቱ የተጠበቀ</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Rejection Reason Custom Modal -->
+    <div id="rejectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #1a233a; padding: 25px; border-radius: 8px; width: 90%; max-width: 450px; border: 1px solid #2e3d63; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+            <h3 style="margin-top: 0; color: #ff4d4d; font-size: 1.2rem;">የውድቅ ማድረጊያ ምክንያት ያስገቡ</h3>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 12px;">ጥያቄውን ውድቅ ለማድረግ ምክንያት መጻፍ ግዴታ ነው።</p>
+            <textarea id="rejectionReasonText" rows="4" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #2e3d63; background: #0f172a; color: white; resize: none; font-family: inherit; box-sizing: border-box;" placeholder="ምክንያቱን እዚህ ይጻፉ..."></textarea>
+            <div style="margin-top: 15px; text-align: right;">
+                <button onclick="closeRejectionModal()" style="background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 8px;">ተመለስ</button>
+                <button onclick="submitRejectionForce()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">ውድቅ አድርግ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- የጃቫስክሪፕት ፋይል ማገናኛ -->
+    <script src="script.js"></script>
+</body>
+
+</html>
